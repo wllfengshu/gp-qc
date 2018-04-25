@@ -4,7 +4,7 @@ import app.wllfengshu.exception.NotAcceptableException;
 
 public interface RecordService {
 	
-	public String getRecords(String sessionId,String user_id,int pageNo,int pageSize) throws NotAcceptableException;
+	public String getRecords(String sessionId,String user_id,String ani,String dnis,String token,int pageNo,int pageSize) throws NotAcceptableException;
 
 	public String addRecord(String record,String sessionId,String user_id) throws NotAcceptableException;
 

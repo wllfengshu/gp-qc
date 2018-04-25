@@ -41,11 +41,13 @@ public class RecordRest {
     @GET
     public Response getRecords(@HeaderParam(value="sessionId") String sessionId,
     		@HeaderParam(value="user_id") String user_id,
+    		@QueryParam("ani") String ani,@QueryParam("dnis") String dnis,
+    		@QueryParam("token") String token,
     		@QueryParam("pageNo") int pageNo,@QueryParam("pageSize") int pageSize,
     		@Context HttpServletRequest request,@Context HttpServletResponse response) {
 		String responseStr = null;
 		try{
-			responseStr=recordService.getRecords(sessionId,user_id,pageNo,pageSize);
+			responseStr=recordService.getRecords(sessionId,user_id,ani,dnis,token,pageNo,pageSize);
 		}catch (NotAcceptableException e) {
 			System.out.println(e);
 			return Response.serverError().entity("{\"message\":\""+e.getMessage()+"\",\"timestamp\":\""+System.currentTimeMillis()+"\"}").status(406).build();
