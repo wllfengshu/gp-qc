@@ -16,9 +16,14 @@ public class RecordDaoImpl implements RecordDao{
 	private MongoCollection<Document> col = MongoDBUtil.instance.getCollection(MongoDBUtil.defaultDB, "record");
 	
 	@Override
-	public ArrayList<Document> getRecords(String user_id,int pageNo,int pageSize) {
+	public ArrayList<Document> getRecords(String user_id,String tenant_id,String ani,String dnis,int pageNo,int pageSize) {
 		BasicDBObject condition = new BasicDBObject();
-		condition.put("qc_id", new BasicDBObject("$eq",user_id));
+		if (!user_id.equals("")) {
+			condition.put("qc_id", new BasicDBObject("$eq",user_id));
+		}
+		if (!tenant_id.equals("")) {
+			condition.put("tenant_id", new BasicDBObject("$eq",tenant_id));
+		}
 		return col.find(condition).sort(new BasicDBObject("qc_time",-1)).skip((pageNo - 1) * pageSize).limit(pageSize).into(new ArrayList<Document>());
 	}
 

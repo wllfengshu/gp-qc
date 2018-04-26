@@ -28,14 +28,16 @@ public class RecordServiceImpl implements RecordService {
 	private RecordDao recordDao;
 	
 	@Override
-	public String getRecords(String sessionId,String user_id,String ani,String dnis,String token,int pageNo,int pageSize) throws NotAcceptableException {
+	public String getRecords(String sessionId,String user_id,String tenant_id,String ani,String dnis,String token,int pageNo,int pageSize) throws NotAcceptableException {
 		Map<String,Object> responseMap = new HashMap<String,Object>();
 		AuthUtil.instance.checkUserInfo(sessionId, user_id);
 		List<Document> records =null;
-		if (token.equals("crm")) {
-			records = recordDao.getRecords(user_id,tnants_id,pageNo,pageSize);
-		}else {
-			records = recordDao.getRecords(user_id,pageNo,pageSize);
+		if (token.equals("crm")) {//使用crm系统的用户，只能查询属于自己数据
+			records = recordDao.getRecords(user_id,"",ani,dnis,pageNo,pageSize);
+		}else if(token.equals("tm")){//使用tm系统的用户，可以查询当前租户下所有数据
+			records = recordDao.getRecords("",tenant_id,ani,dnis,pageNo,pageSize);
+		}else{//其他token直接返回失败
+			throw new NotAcceptableException("凭证异常");
 		}
 		responseMap.put("data", records);
 		responseMap.put("count", records.size());
