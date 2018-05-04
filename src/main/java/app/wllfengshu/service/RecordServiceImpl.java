@@ -17,6 +17,7 @@ import com.google.gson.GsonBuilder;
 import app.wllfengshu.dao.RecordDao;
 import app.wllfengshu.exception.NotAcceptableException;
 import app.wllfengshu.util.AuthUtil;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 @Service
@@ -30,7 +31,16 @@ public class RecordServiceImpl implements RecordService {
 	@Override
 	public String getRecords(String sessionId,String user_id,String tenant_id,String ani,String dnis,String token,int pageNo,int pageSize) throws NotAcceptableException {
 		Map<String,Object> responseMap = new HashMap<String,Object>();
-		AuthUtil.instance.checkUserInfo(sessionId, user_id);
+		JSONObject user = AuthUtil.instance.getUser(sessionId, user_id);
+		if (null==user || user.isNullObject()) {
+			throw new NotAcceptableException("没有权限");
+		}
+		JSONArray roles = user.getJSONArray("roles");
+		JSONObject role = roles.getJSONObject(0);
+		String role_name=role.getString("role_name");
+		if (!"qc".equals(role_name) && !"tm".equals(role_name)) {//允许质检员和租户管理员查看质检记录
+			throw new NotAcceptableException("角色异常");
+		}
 		List<Document> records =null;
 		if (token.equals("crm")) {//使用crm系统的用户，只能查询属于自己数据
 			records = recordDao.getRecords(user_id,"",ani,dnis,pageNo,pageSize);
@@ -49,12 +59,23 @@ public class RecordServiceImpl implements RecordService {
 	public String addRecord(String record,String sessionId,String user_id) throws NotAcceptableException {
 		Map<String,Object> responseMap = new HashMap<String,Object>();
 		String record_id = UUID.randomUUID().toString();
-		AuthUtil.instance.checkUserInfo(sessionId, user_id);
-		Document recordDoc =null;
+		Document recordDoc=null;
 		try{
-			recordDoc = Document.parse(record);
-			recordDoc.put("id", record_id);
+			JSONObject tempJson = JSONObject.fromObject(record);//这里面包含录音信息（即record）和质检结果(result)
+			JSONObject recordJson = tempJson.getJSONObject("record");
+			recordDoc = Document.parse(recordJson.toString());
+			recordDoc.remove("id");
+			recordDoc.put("_id", record_id);
 			JSONObject user = AuthUtil.instance.getUser(sessionId, user_id);
+			if (null==user || user.isNullObject()) {
+				throw new NotAcceptableException("没有权限");
+			}
+			JSONArray roles = user.getJSONArray("roles");
+			JSONObject role = roles.getJSONObject(0);
+			String role_name=role.getString("role_name");
+			if (!"qc".equals(role_name)) {
+				throw new NotAcceptableException("角色异常");
+			}
 			recordDoc.put("qc_id",user_id);//user_id就是质检员
 			recordDoc.put("qc_login_name", user.getString("login_name"));
 			recordDoc.put("qc_username", user.getString("username"));
@@ -66,7 +87,7 @@ public class RecordServiceImpl implements RecordService {
 		responseMap.put("timestamp", String.valueOf(System.currentTimeMillis()));
 		return gson.toJson(responseMap);
 	}
-	
+
 	@Override
 	public String getRecord(String record_id,String sessionId,String user_id) throws NotAcceptableException {
 		Map<String,Object> responseMap = new HashMap<String,Object>();

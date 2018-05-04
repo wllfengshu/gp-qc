@@ -7,7 +7,7 @@ public class Record {
 	private String ani;
 	private String call_direction;
 	private String call_id;
-	private double call_length;
+	private double length;
 	private String dnis;
 	private String end_time;
 	private String file_place;
@@ -45,12 +45,6 @@ public class Record {
 	}
 	public void setCall_id(String call_id) {
 		this.call_id = call_id;
-	}
-	public double getCall_length() {
-		return call_length;
-	}
-	public void setCall_length(double call_length) {
-		this.call_length = call_length;
 	}
 	public String getDnis() {
 		return dnis;
@@ -135,6 +129,12 @@ public class Record {
 	}
 	public void setQc_time(String qc_time) {
 		this.qc_time = qc_time;
+	}
+	public double getLength() {
+		return length;
+	}
+	public void setLength(double length) {
+		this.length = length;
 	}
 
 }
