@@ -80,6 +80,7 @@ public class RecordServiceImpl implements RecordService {
 			recordDoc.put("qc_login_name", user.getString("login_name"));
 			recordDoc.put("qc_username", user.getString("username"));
 			recordDoc.put("qc_time", sdf.format(new Date(System.currentTimeMillis())));
+			recordDoc.put("tenant_id", user.getString("tenant_id"));
 		}catch(Exception e){
 			throw new NotAcceptableException("数据格式错误");
 		}

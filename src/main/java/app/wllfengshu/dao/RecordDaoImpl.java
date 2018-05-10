@@ -24,6 +24,12 @@ public class RecordDaoImpl implements RecordDao{
 		if (!tenant_id.equals("")) {
 			condition.put("tenant_id", new BasicDBObject("$eq",tenant_id));
 		}
+		if (!ani.equals("")) {
+			condition.put("ani", new BasicDBObject("$eq",ani));
+		}
+		if (!dnis.equals("")) {
+			condition.put("dnis", new BasicDBObject("$eq",dnis));
+		}
 		return col.find(condition).sort(new BasicDBObject("qc_time",-1)).skip((pageNo - 1) * pageSize).limit(pageSize).into(new ArrayList<Document>());
 	}
 
